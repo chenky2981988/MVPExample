@@ -1,4 +1,4 @@
-package com.androidarchcomp.mvpexample;
+package com.androidarchcomp.mvpexample.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -28,6 +28,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.androidarchcomp.mvpexample.R;
+import com.androidarchcomp.mvpexample.model.LoginResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -294,7 +297,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, LoginResponse> {
 
         private final String mEmail;
         private final String mPassword;
@@ -305,7 +308,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected LoginResponse doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
             try {
