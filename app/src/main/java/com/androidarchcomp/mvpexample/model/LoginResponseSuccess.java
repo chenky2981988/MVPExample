@@ -3,7 +3,7 @@ package com.androidarchcomp.mvpexample.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class LoginResponseSuccess implements LoginResponse{
+public class LoginResponseSuccess {
     @SerializedName("token")
     @Expose
     private String token;

@@ -13,12 +13,12 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,10 +30,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.androidarchcomp.mvpexample.R;
-import com.androidarchcomp.mvpexample.model.LoginResponse;
+import com.androidarchcomp.mvpexample.model.LoginResponseSuccess;
+import com.androidarchcomp.mvpexample.network.APIClient;
+import com.androidarchcomp.mvpexample.network.APIInterface;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -57,13 +65,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private APIInterface apiInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +103,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        apiInterface = APIClient.getClient().create(APIInterface.class);
     }
 
     private void populateAutoComplete() {
@@ -147,9 +157,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -188,8 +195,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            loginUser(email, password);
         }
     }
 
@@ -293,61 +299,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, LoginResponse> {
+    private void loginUser(String username, String password){
+        /**
+         GET List Resources
+         **/
+        Call<LoginResponseSuccess> loginResponseCall = apiInterface.doLoginUserWithField(username, password);
+        loginResponseCall.enqueue(new Callback<LoginResponseSuccess>() {
+            @Override
+            public void onResponse(Call<LoginResponseSuccess> call, Response<LoginResponseSuccess> response) {
+                Log.d("TAG","onSuccess Code : " + response.code() + " Body : " + response.message());
 
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected LoginResponse doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                if(response.isSuccessful()){
+                    LoginResponseSuccess loginResponseSuccess = response.body();
+                    Log.d("TAG","Token : " + loginResponseSuccess.getToken());
+                }else {
+//                    Converter<ResponseBody, BasicResponse> errorConverter =
+//                            retrofit.responseConverter(BasicResponse.class, new Annotation[0]);
+//                    BasicResponse error = errorConverter.convert(response.errorBody());
                 }
+                showProgress(false);
             }
 
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+            @Override
+            public void onFailure(Call<LoginResponseSuccess> call, Throwable throwable) {
+                Log.d("TAG","onFailure");
+                showProgress(false);
             }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+        });
     }
 }
 

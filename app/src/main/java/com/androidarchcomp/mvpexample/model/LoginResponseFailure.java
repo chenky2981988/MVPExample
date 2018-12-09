@@ -3,7 +3,7 @@ package com.androidarchcomp.mvpexample.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class LoginResponseFailure implements LoginResponse{
+public class LoginResponseFailure {
 
     @SerializedName("error")
     @Expose
