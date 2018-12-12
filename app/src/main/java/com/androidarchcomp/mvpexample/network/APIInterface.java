@@ -1,11 +1,14 @@
 package com.androidarchcomp.mvpexample.network;
 
 import com.androidarchcomp.mvpexample.model.LoginResponseSuccess;
+import com.androidarchcomp.mvpexample.model.UserList;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface APIInterface {
 
@@ -25,5 +28,8 @@ public interface APIInterface {
     @FormUrlEncoded
     @POST("/api/login?")
     Call<LoginResponseSuccess> doLoginUserWithField(@Field("email")String email, @Field("password")String password);
+
+    @GET("/api/users?")
+    Call<UserList> doGetUserList(@Query("page") String page);
 
 }
