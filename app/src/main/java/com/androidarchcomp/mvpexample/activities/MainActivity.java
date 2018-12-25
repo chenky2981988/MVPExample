@@ -1,27 +1,31 @@
 package com.androidarchcomp.mvpexample.activities;
 
-import android.support.design.widget.TabLayout;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
 
 import com.androidarchcomp.mvpexample.R;
+import com.androidarchcomp.mvpexample.fragments.ResourceListFragment;
+import com.androidarchcomp.mvpexample.fragments.UserListFragment;
+import com.androidarchcomp.mvpexample.model.Resource;
+import com.androidarchcomp.mvpexample.model.User;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements UserListFragment.OnListFragmentInteractionListener, ResourceListFragment.OnResourceListFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -92,6 +96,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onListFragmentInteraction(User item) {
+        Log.d("TAG","User : "+item.getFirstName());
+    }
+
+    @Override
+    public void OnResourceListFragmentInteractionListener(Resource item) {
+
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -141,13 +160,17 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            if(position ==0){
+                return UserListFragment.newInstance(1);
+            }else {
+                return ResourceListFragment.newInstance(1);
+            }
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 2;
         }
     }
 }

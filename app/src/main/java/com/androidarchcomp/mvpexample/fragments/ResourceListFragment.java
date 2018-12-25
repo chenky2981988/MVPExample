@@ -18,9 +18,9 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.androidarchcomp.mvpexample.R;
-import com.androidarchcomp.mvpexample.adapters.UserRecyclerViewAdapter;
-import com.androidarchcomp.mvpexample.model.User;
-import com.androidarchcomp.mvpexample.model.UserList;
+import com.androidarchcomp.mvpexample.adapters.ResourceRecyclerViewAdapter;
+import com.androidarchcomp.mvpexample.model.Resource;
+import com.androidarchcomp.mvpexample.model.ResourceList;
 import com.androidarchcomp.mvpexample.network.APIClient;
 import com.androidarchcomp.mvpexample.network.APIInterface;
 
@@ -31,33 +31,33 @@ import retrofit2.Response;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnResourceListFragmentInteractionListener}
  * interface.
  */
-public class UserListFragment extends Fragment {
+public class ResourceListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private OnResourceListFragmentInteractionListener mListener;
     private APIInterface apiInterface;
     private View mProgressView;
     private RecyclerView recyclerView;
-    private UserRecyclerViewAdapter userRecyclerViewAdapter;
+    private ResourceRecyclerViewAdapter resourceRecyclerViewAdapter;
     int page = 0, totalPage = 0;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public UserListFragment() {
+    public ResourceListFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static UserListFragment newInstance(int columnCount) {
-        UserListFragment fragment = new UserListFragment();
+    public static ResourceListFragment newInstance(int columnCount) {
+        ResourceListFragment fragment = new ResourceListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -90,8 +90,8 @@ public class UserListFragment extends Fragment {
             recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
 
-        userRecyclerViewAdapter = new UserRecyclerViewAdapter(mListener);
-        recyclerView.setAdapter(userRecyclerViewAdapter);
+        resourceRecyclerViewAdapter = new ResourceRecyclerViewAdapter(mListener);
+        recyclerView.setAdapter(resourceRecyclerViewAdapter);
 
         return view;
     }
@@ -105,8 +105,8 @@ public class UserListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnResourceListFragmentInteractionListener) {
+            mListener = (OnResourceListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -116,7 +116,7 @@ public class UserListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getUserList(1);
+        getResourceList();
     }
 
     @Override
@@ -135,30 +135,32 @@ public class UserListFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnResourceListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(User item);
+        void OnResourceListFragmentInteractionListener(Resource item);
+
+        Context getContext();
     }
 
 
-    private void getUserList(final int pageNumber) {
+    private void getResourceList() {
         /**
-         GET List Users
+         GET List Resources
          **/
         showProgress(true);
-        Call<UserList> loginResponseCall = apiInterface.doGetUserList(String.valueOf(pageNumber));
-        loginResponseCall.enqueue(new Callback<UserList>() {
+        Call<ResourceList> loginResponseCall = apiInterface.doGetListResources();
+        loginResponseCall.enqueue(new Callback<ResourceList>() {
             @Override
-            public void onResponse(Call<UserList> call, Response<UserList> response) {
+            public void onResponse(Call<ResourceList> call, Response<ResourceList> response) {
                 Log.d("TAG", "onSuccess Code : " + response.code() + " Body : " + response.message());
 
                 if (response.isSuccessful()) {
-                    UserList userList = response.body();
-                    if (userList != null) {
-                        userRecyclerViewAdapter.setUserList(userList.getData());
-                        page = userList.getPage();
-                        totalPage = userList.getTotalPages();
-                        Log.d("TAG", "User List Size : " + userList.getData().size());
+                    ResourceList resourceList = response.body();
+                    if (resourceList != null) {
+                        resourceRecyclerViewAdapter.setResourceList(resourceList.getData());
+                        page = resourceList.getPage();
+                        totalPage = resourceList.getTotalPages();
+                        Log.d("TAG", "Resource List Size : " + resourceList.getData().size());
                     }
 
                 } else {
@@ -168,7 +170,7 @@ public class UserListFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<UserList> call, Throwable throwable) {
+            public void onFailure(Call<ResourceList> call, Throwable throwable) {
                 Log.d("TAG", "onFailure");
                 showProgress(false);
             }

@@ -1,6 +1,7 @@
 package com.androidarchcomp.mvpexample.network;
 
 import com.androidarchcomp.mvpexample.model.LoginResponseSuccess;
+import com.androidarchcomp.mvpexample.model.ResourceList;
 import com.androidarchcomp.mvpexample.model.UserList;
 
 import retrofit2.Call;
@@ -32,4 +33,6 @@ public interface APIInterface {
     @GET("/api/users?")
     Call<UserList> doGetUserList(@Query("page") String page);
 
+    @GET("/api/unknown")
+    Call<ResourceList> doGetListResources();
 }

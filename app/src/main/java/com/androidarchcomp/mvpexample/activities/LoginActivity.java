@@ -3,6 +3,7 @@ package com.androidarchcomp.mvpexample.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,8 @@ import com.androidarchcomp.mvpexample.R;
 import com.androidarchcomp.mvpexample.model.LoginResponseSuccess;
 import com.androidarchcomp.mvpexample.network.APIClient;
 import com.androidarchcomp.mvpexample.network.APIInterface;
+import com.androidarchcomp.mvpexample.util.Constants;
+import com.androidarchcomp.mvpexample.util.CustomSharedPreference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,6 +108,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         apiInterface = APIClient.getClient().create(APIInterface.class);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!TextUtils.isEmpty(CustomSharedPreference.getInstance(getApplicationContext()).retriveString(Constants.TOKEN_PREF))){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void populateAutoComplete() {
@@ -308,16 +321,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onResponse(Call<LoginResponseSuccess> call, Response<LoginResponseSuccess> response) {
                 Log.d("TAG","onSuccess Code : " + response.code() + " Body : " + response.message());
-
+                showProgress(false);
                 if(response.isSuccessful()){
                     LoginResponseSuccess loginResponseSuccess = response.body();
                     Log.d("TAG","Token : " + loginResponseSuccess.getToken());
+                    CustomSharedPreference.getInstance(getApplicationContext()).saveString(Constants.TOKEN_PREF, loginResponseSuccess.getToken());
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 }else {
 //                    Converter<ResponseBody, BasicResponse> errorConverter =
 //                            retrofit.responseConverter(BasicResponse.class, new Annotation[0]);
 //                    BasicResponse error = errorConverter.convert(response.errorBody());
                 }
-                showProgress(false);
+
             }
 
             @Override
